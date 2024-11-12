@@ -66,6 +66,14 @@ app.get('/bands', async (req,res) => {
     }
 })
 
+app.get("/musicians/:id", async (req,res) => {
+    const id = req.params.id
+
+    const musician = await Musician.findByPk(id)
+
+    res.json(musician)
+})
+
 
 
 

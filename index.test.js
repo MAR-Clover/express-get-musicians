@@ -40,6 +40,14 @@ describe('./musicians endpoint', () => {
         expect(responseData[0].name).toBe("Mick Jagger")
 
     })
+
+    test("musicians/:id endpoint retrieves musician correctly", async () =>{
+        const response = await request(app).get('/musicians/1')
+
+        const responseData = JSON.parse(response.text)
+
+        expect(responseData.name).toBe("Mick Jagger")
+    })
     
 })
 
@@ -50,4 +58,6 @@ describe('./bands endpoint', () => {
         expect(response.statusCode).toBe(200)
     })
 })
+
+
 
