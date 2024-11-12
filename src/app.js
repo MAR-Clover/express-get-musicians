@@ -6,6 +6,9 @@ const {Band} = require('../models/index')
 
 const port = 3000;
 
+app.use(express.json())
+app.use(express.urlencoded())
+
 //TODO: Create a GET /musicians route to return all musicians 
 app.get('/musicians', async (req, res) => {
     try {
@@ -72,6 +75,36 @@ app.get("/musicians/:id", async (req,res) => {
     const musician = await Musician.findByPk(id)
 
     res.json(musician)
+})
+
+app.post("/musician", async (req,res) => {
+
+    //add new musician
+    await Musician.create(req.body)
+
+    //get musicians with new musician added
+    const musiciansWithNewMusician = await Musician.findAll()
+
+    //send updated musicians 
+    res.json(musiciansWithNewMusician)
+})
+
+app.put("/musician/:id", async (req,res) =>{ 
+
+    //update musician using id
+    await Musician.update(req.body, {where:{id:req.params.id}})
+    //get musicians after update
+    const musicians = await Musician.findAll()
+    res.json(musicians)
+})
+app.delete("/musicians/:id", async (req,res)=>{
+    //delete musician using id
+    await Musician.destroy({where:{id:req.params.id}})
+
+    //get musicians after deletion 
+    const musicians = Musician.findAll()
+    //send musicians
+    res.json(musicians)
 })
 
 

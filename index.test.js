@@ -10,6 +10,7 @@ const app = require('./src/app');
 const {seedMusician} = require("./seedData");
 
 
+
 describe('./musicians endpoint', () => {
     // Write your tests here
 
@@ -41,6 +42,7 @@ describe('./musicians endpoint', () => {
 
     })
 
+    //testing musicians/:id endpoint
     test("musicians/:id endpoint retrieves musician correctly", async () =>{
         const response = await request(app).get('/musicians/1')
 
@@ -58,6 +60,43 @@ describe('./bands endpoint', () => {
         expect(response.statusCode).toBe(200)
     })
 })
+
+describe("Musician API", () => {
+    beforeEach(async () => {
+        await Musician.sync({ force: true }); // Reset the table
+        await Musician.bulkCreate([
+          { id: 1, name: "John Doe", instrument: "Guitar" },
+          { id: 2, name: "Jane Smith", instrument: "Piano" },
+        ]);
+      });
+
+    // Test POST /musician
+    it("should add a new musician and return the updated list", async () => {
+      const newMusician = { name: "Alice Cooper", instrument: "Vocals" };
+      const response = await request(app).post("/musician").send(newMusician);
+  
+      expect(response.status).toBe(200);
+      expect(response.body).toHaveLength(3);
+      expect(response.body[2]).toEqual(expect.objectContaining(newMusician));
+    });
+  
+    // Test PUT /musician/:id
+    it("should update an existing musician and return the updated list", async () => {
+      const updatedData = { name: "John Lennon", instrument: "Vocals" };
+      const response = await request(app).put("/musician/1").send(updatedData);
+  
+      expect(response.status).toBe(200);
+      expect(response.body).toHaveLength(2);
+      expect(response.body[0]).toEqual(expect.objectContaining(updatedData));
+    });
+  
+    // Test DELETE /musicians/:id
+    it("should delete a musician", async () => {
+      const response = await request(app).delete("/musicians/2");
+  
+      expect(response.status).toBe(200);
+    });
+  });
 
 
 
