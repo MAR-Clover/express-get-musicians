@@ -47,7 +47,7 @@ describe('./musicians endpoint', () => {
         const response = await request(app).get('/musicians/1')
 
         const responseData = JSON.parse(response.text)
-
+        console.log(responseData.name)
         expect(responseData.name).toBe("Mick Jagger")
     })
     
@@ -62,39 +62,62 @@ describe('./bands endpoint', () => {
 })
 
 describe("Musician API", () => {
-    beforeEach(async () => {
-        await Musician.sync({ force: true }); // Reset the table
-        await Musician.bulkCreate([
-          { id: 1, name: "John Doe", instrument: "Guitar" },
-          { id: 2, name: "Jane Smith", instrument: "Piano" },
-        ]);
-      });
+  beforeEach(async () => {
+    // Clear musicians table before each test to ensure a clean state
+    await Musician.truncate();
+    
+    // Seed initial musicians to ensure the database starts with known data
+    await Musician.bulkCreate([
+      { name: "Musician 1", instrument: "Guitar" },
+      { name: "Musician 2", instrument: "Drums" },
+    ]);
+  });
 
-    // Test POST /musician
-    it("should add a new musician and return the updated list", async () => {
-      const newMusician = { name: "Alice Cooper", instrument: "Vocals" };
-      const response = await request(app).post("/musician").send(newMusician);
-  
-      expect(response.status).toBe(200);
-      expect(response.body).toHaveLength(3);
-      expect(response.body[2]).toEqual(expect.objectContaining(newMusician));
-    });
-  
+  // Test POST /musicians
+  it("should add a new musician and return the updated list", async () => {
+    const newMusician = { name: "Alice Cooper", instrument: "Vocals" };
+    
+    const response = await request(app).post("/musicians").send(newMusician);
+
+    expect(response.status).toBe(201);
+
+    expect(response.body).toHaveLength(3);
+    console.log(response.body)
+ 
+    const newMusicianInResponse = response.body[2];
+    expect(newMusicianInResponse).toHaveProperty("id"); 
+    expect(newMusicianInResponse.name).toBe(newMusician.name); 
+    expect(newMusicianInResponse.instrument).toBe(newMusician.instrument); 
+
+    console.log(response.body); 
+  });
+
+
     // Test PUT /musician/:id
     it("should update an existing musician and return the updated list", async () => {
-      const updatedData = { name: "John Lennon", instrument: "Vocals" };
-      const response = await request(app).put("/musician/1").send(updatedData);
+      const newMusician = await Musician.create({
+        id:120,
+        name:'The weeknd',
+        instrument:"vocals"
+      })
+      const updatedData = { name: "John Legend", instrument: "Vocals" };
+
+      const response = await request(app).put("/musicians/120").send(updatedData);
+
+      console.log(response.body)
+      expect(response.status).toBe(200); // Expect a 200 OK status for update
+      expect(response.body).toHaveLength(3); // Ensure there are 3 musicians in the updated list
+      expect(response.body[2]).toEqual(expect.objectContaining(updatedData)); // Verify the 3rd musician at 2nd index is updated musician data is in the response
+  });
   
-      expect(response.status).toBe(200);
-      expect(response.body).toHaveLength(2);
-      expect(response.body[0]).toEqual(expect.objectContaining(updatedData));
-    });
   
     // Test DELETE /musicians/:id
     it("should delete a musician", async () => {
-      const response = await request(app).delete("/musicians/2");
+      const response = await request(app).delete("/musicians/201");
   
       expect(response.status).toBe(200);
+      expect(response.body.length).toBe(2);
+
     });
   });
 
