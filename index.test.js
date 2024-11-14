@@ -10,6 +10,34 @@ const app = require('./src/app');
 const {seedMusician} = require("./seedData");
 
 
+describe("bands endpoint", () => {
+  it("/ returns all bands", async () =>{
+
+    const response = await request(app).get("/bands")
+
+    const responseData = JSON.parse(response.text)
+    //expects 3 items
+    expect(responseData.length).toBe(3)
+    //tests that each item in response has necessary properties
+      responseData.forEach(item => {
+        expect(item).toHaveProperty("id")
+        expect(item).toHaveProperty("name")
+        expect(item).toHaveProperty("genre")
+    });
+  })
+
+  it("/:id returns specific band by id", async () =>{
+
+    const response = await request(app).get("/bands/1")
+
+    console.log(response.body)
+    //expects 3 items
+    expect(response.body.name).toBe("The Beatles")
+  
+  })
+  
+})
+
 
 describe('./musicians endpoint', () => {
     // Write your tests here
@@ -37,7 +65,7 @@ describe('./musicians endpoint', () => {
             expect(item).toHaveProperty("updatedAt")
         });
         
-        //first name in array should be mick jagger
+        
         expect(responseData[0].name).toBe("Mick Jagger")
 
     })
@@ -66,7 +94,7 @@ describe("Musician API", () => {
     // Clear musicians table before each test to ensure a clean state
     await Musician.truncate();
     
-    // Seed initial musicians to ensure the database starts with known data
+    // Seed initial musician
     await Musician.bulkCreate([
       { name: "Musician 1", instrument: "Guitar" },
       { name: "Musician 2", instrument: "Drums" },
@@ -105,7 +133,7 @@ describe("Musician API", () => {
       const response = await request(app).put("/musicians/120").send(updatedData);
 
       console.log(response.body)
-      expect(response.status).toBe(200); // Expect a 200 OK status for update
+      expect(response.status).toBe(200); 
       expect(response.body).toHaveLength(3); // Ensure there are 3 musicians in the updated list
       expect(response.body[2]).toEqual(expect.objectContaining(updatedData)); // Verify the 3rd musician at 2nd index is updated musician data is in the response
   });
