@@ -3,58 +3,14 @@ const app = express();
 const { Musician } = require("../models/index")
 const { db } = require("../db/connection")
 const {Band} = require('../models/index')
+const musicianRoutes = require("../routes/musicians")
 
 const port = 3000;
+app.use(express.json());  // Handles JSON data in request body
+app.use(express.urlencoded({ extended: true }));  // Handles form-encoded data
 
-//TODO: Create a GET /musicians route to return all musicians 
-app.get('/musicians', async (req, res) => {
-    try {
-        const allMusicians = await Musician.findAll();
-        res.json(allMusicians);
-    } catch (error) {
-        console.error("Error fetching musicians:", error);
-        res.status(500).json({ error: "Failed to retrieve musicians" });
-    }
-});
+app.use("/musicians", musicianRoutes);
 
-app.get('/musicians/1', async (req,res) => {
-    try{
-        const allMusicians = await Musician.findAll()
-        const musician = allMusicians[0]
-
-        res.json(musician)
-    }catch(error){
-        console.error("Error fetching musician", error);
-        res.status(500).json({ error: "Failed to retrieve musician" });
-
-    }
-})
-
-app.get('/musicians/2', async (req,res) => {
-    try{
-        const allMusicians = await Musician.findAll()
-        const musician = allMusicians[1]
-
-        res.json(musician)
-    }catch(error){
-        console.error("Error fetching musician", error);
-        res.status(500).json({ error: "Failed to retrieve musician" });
-
-    }
-})
-
-app.get('/musicians/3', async (req,res) => {
-    try{
-        const allMusicians = await Musician.findAll()
-        const musician = allMusicians[2]
-
-        res.json(musician)
-    }catch(error){
-        console.error("Error fetching musician", error);
-        res.status(500).json({ error: "Failed to retrieve musician" });
-
-    }
-})
 
 app.get('/bands', async (req,res) => {
     try{
