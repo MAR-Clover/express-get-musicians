@@ -9,7 +9,35 @@ const { Musician } = require('./models/index')
 const app = require('./src/app');
 const {seedMusician} = require("./seedData");
 
+describe("Express-validator checks for musicians /post", () =>{
+  it("should return an errors array when name isnt passed", async () => {
+    const invalidMusician = { name: "", instrument: "Guitar" };
+    const invalidResponse = await request(app).post("/musicians").send(invalidMusician);
 
+    expect(invalidResponse.status).toBe(400);
+    expect(invalidResponse.body.error).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          msg: "Name cannot be empty",
+          path: "name",
+        }),
+      ])
+    );
+
+    const invalidMusician2 = { name: "John", instrument: "" };
+    const invalidResponse2 = await request(app).post("/musicians").send(invalidMusician2);
+
+    expect(invalidResponse2.status).toBe(400);
+    expect(invalidResponse2.body.error).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          msg: "Instrument cannot be empty",
+          path: "instrument",
+        }),
+      ])
+    );
+  })
+})
 describe("bands endpoint", () => {
   it("/ returns all bands", async () =>{
 
