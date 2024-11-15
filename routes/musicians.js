@@ -22,7 +22,10 @@ router.get("/:id", async (req,res)=>{
 router.post("/",
     [
         check("name").trim().not().isEmpty().withMessage("Name cannot be empty"),
-        check("instrument").trim().not().isEmpty().withMessage("Instrument cannot be empty")
+        check("instrument").trim().not().isEmpty().withMessage("Instrument cannot be empty"),
+        check("name").isLength({min:2, max:20}).trim().withMessage("Name must be between 2 and 20 characters"),
+        check("instrument").isLength({min:2, max:20}).trim().withMessage("Instrument must be between 2 and 20 characters")
+
     ],
 
     async (req, res) => {
@@ -42,19 +45,30 @@ router.post("/",
   
 //route to update
 
-router.put("/:id", async (req, res) => {
-    const uid = req.params.id; // Get the musician id from the request params
-    const content = req.body;  // Get the updated data from the request body
+router.put("/:id",
+    [
+        check("name").trim().not().isEmpty().withMessage("Name cannot be empty"),
+        check("instrument").trim().not().isEmpty().withMessage("Instrument cannot be empty"),
+        check("name").isLength({min:2, max:20}).trim().withMessage("Name must be between 2 and 20 characters"),
+        check("instrument").isLength({min:2, max:20}).trim().withMessage("Instrument must be between 2 and 20 characters")
 
-    try {
+    ],
+    async (req, res) => {
+    const errors = validationResult(req)
+    const uid = req.params.id; 
+    const content = req.body;  
+
+    if(!errors.isEmpty()){
+        res.status(400).json({error:errors.array()})
+    }else{
         await Musician.update(content, { where: { id: uid } });
 
         const musicians = await Musician.findAll();
 
         res.status(200).json(musicians);
-    } catch (e) {
-        res.status(500).json({ message: "Error updating Musician", error: e.message });
     }
+
+
 });
 
 //route to delete

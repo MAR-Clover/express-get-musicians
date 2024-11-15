@@ -9,6 +9,112 @@ const { Musician } = require('./models/index')
 const app = require('./src/app');
 const {seedMusician} = require("./seedData");
 
+describe("Express-validator checks for musicians /put", () => {
+  it("should return error when updating with name less than 2 characters", async () => {
+
+    const musician = await Musician.findOne({ where: { name: "Drake" } });
+
+    // sanity check to make sure musician exists
+    if (!musician) {
+      console.error(`Musician not found: Ensure ${musician} exists in the test database.`);
+      return;
+    }
+
+    const musicianId = musician.id;
+    const updatedMusicianValues = { name: "a", instrument: "saxophone" };
+    const response = await request(app).put(`/musicians/${musicianId}`).send(updatedMusicianValues);
+
+    expect(response.status).toBe(400); 
+    expect(response.body.error).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          msg: "Name must be between 2 and 20 characters", 
+          path: "name", 
+        }),
+      ])
+    );
+  });
+
+  it("should return error when updating with name over 20 characters", async () => {
+
+    const musician = await Musician.findOne({ where: { name: "Drake" } });
+
+    // sanity check to make sure musician exists
+    if (!musician) {
+      console.error(`Musician not found: Ensure ${musician} exists in the test database.`);
+      return;
+    }
+
+    const musicianId = musician.id;
+    const updatedMusicianValues = { name: "abcdefghijklmnopqrstuvwxyzabcds", instrument: "saxophone" };
+    const response = await request(app).put(`/musicians/${musicianId}`).send(updatedMusicianValues);
+
+    expect(response.status).toBe(400); 
+    expect(response.body.error).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          msg: "Name must be between 2 and 20 characters", 
+          path: "name", 
+        }),
+      ])
+    );
+  });
+
+
+  //Musicians instrument length test:
+  it("should return error when updating with instrument less than 2 characters", async () => {
+
+    const musician = await Musician.findOne({ where: { name: "Drake" } });
+
+    // sanity check to make sure musician exists
+    if (!musician) {
+      console.error(`Musician not found: Ensure ${musician} exists in the test database.`);
+      return;
+    }
+
+    const musicianId = musician.id;
+    const updatedMusicianValues = { name: "21 savage", instrument: "s" };
+    const response = await request(app).put(`/musicians/${musicianId}`).send(updatedMusicianValues);
+
+    expect(response.status).toBe(400); 
+    expect(response.body.error).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          msg: "Instrument must be between 2 and 20 characters", 
+          path: "instrument", 
+        }),
+      ])
+    );
+  });
+
+  it("should return error when updating with instrument over 20 characters", async () => {
+
+    const musician = await Musician.findOne({ where: { name: "Drake" } });
+
+    // sanity check to make sure musician exists
+    if (!musician) {
+      console.error(`Musician not found: Ensure ${musician} exists in the test database.`);
+      return;
+    }
+
+    const musicianId = musician.id;
+    const updatedMusicianValues = { name: "21 savage", instrument: "saxophonesaxophonesaxophone" };
+    const response = await request(app).put(`/musicians/${musicianId}`).send(updatedMusicianValues);
+
+    expect(response.status).toBe(400); 
+    expect(response.body.error).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          msg: "Instrument must be between 2 and 20 characters", 
+          path: "instrument", 
+        }),
+      ])
+    );
+  });
+});
+
+
+
 describe("Express-validator checks for musicians /post", () =>{
   it("should return an errors array when name isnt passed", async () => {
     const invalidMusician = { name: "", instrument: "Guitar" };
